@@ -2,34 +2,54 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import { GameEngine } from './game';
+import { loadEnv } from './config/env';
+import { GameEngine } from './engine/GameEngine';
+import { BettingService } from './services/BettingService';
+import { PlayerStore } from './services/PlayerStore';
+import {
+  AppServer,
+  registerSocketHandlers,
+} from './sockets/registerSocketHandlers';
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from './sockets/events';
 
-const PORT = Number(process.env.PORT) || 4100;
+function bootstrap() {
+  const env = loadEnv();
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+  const app = express();
+  app.use(cors({ origin: env.corsOrigin }));
+  app.use(express.json());
+  app.get('/health', (_req, res) => res.json({ ok: true }));
 
-app.get('/health', (_req, res) => {
-  res.json({ ok: true });
-});
+  const httpServer = createServer(app);
+  const io: AppServer = new Server<ClientToServerEvents, ServerToClientEvents>(
+    httpServer,
+    { cors: { origin: env.corsOrigin, methods: ['GET', 'POST'] } },
+  );
 
-const httpServer = createServer(app);
+  const engine = new GameEngine();
+  const players = new PlayerStore();
+  const betting = new BettingService(engine, players);
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST'],
-  },
-});
+  registerSocketHandlers({ io, engine, players, betting });
 
-const game = new GameEngine(io);
-game.start();
+  engine.start();
 
-io.on('connection', (socket) => {
-  game.registerSocket(socket);
-});
+  httpServer.listen(env.port, () => {
+    console.log(`[aviator-server] listening on http://localhost:${env.port}`);
+  });
 
-httpServer.listen(PORT, () => {
-  console.log(`[aviator-server] listening on http://localhost:${PORT}`);
-});
+  const shutdown = (signal: string) => {
+    console.log(`[aviator-server] received ${signal}, shutting down…`);
+    engine.stop();
+    io.close();
+    httpServer.close(() => process.exit(0));
+    setTimeout(() => process.exit(1), 5_000).unref();
+  };
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+bootstrap();

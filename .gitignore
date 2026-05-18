@@ -11,4 +11,5 @@ build
 .claude
 .playwright-mcp
 next-env.d.ts
+*.tsbuildinfo
 

@@ -1,12 +1,11 @@
 export type GamePhase = 'WAITING' | 'RUNNING' | 'CRASHED';
+export type BetSlot = 0 | 1;
 
 export interface Player {
   id: string;
   name: string;
   balance: number;
 }
-
-export type BetSlot = 0 | 1;
 
 export interface Bet {
   playerId: string;
@@ -16,6 +15,13 @@ export interface Bet {
   autoCashout?: number;
   cashedOutAt?: number;
   winnings?: number;
+}
+
+export interface HistoryEntry {
+  roundId: number;
+  crashPoint: number;
+  hash: string;
+  serverSeed: string;
 }
 
 export interface RoundSnapshot {
@@ -30,9 +36,23 @@ export interface RoundSnapshot {
   crashedAt?: number;
 }
 
-export interface HistoryEntry {
-  roundId: number;
-  crashPoint: number;
-  hash: string;
-  serverSeed: string;
+export interface ActiveBetView {
+  playerId: string;
+  playerName: string;
+  slot: BetSlot;
+  amount: number;
+  autoCashout?: number;
+  cashedOutAt?: number;
+  winnings?: number;
+}
+
+export interface CashoutResult {
+  slot: BetSlot;
+  multiplier: number;
+  winnings: number;
+}
+
+export interface BetError {
+  slot: BetSlot;
+  message: string;
 }

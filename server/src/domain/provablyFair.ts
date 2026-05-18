@@ -20,8 +20,7 @@ export function deriveCrashPoint(serverSeed: string, nonce: number): number {
     .update(String(nonce))
     .digest('hex');
 
-  const slice = hmac.slice(0, 8);
-  const intVal = parseInt(slice, 16);
+  const intVal = parseInt(hmac.slice(0, 8), 16);
   const X = (intVal / 0xffffffff) * 99.99;
 
   const raw = Math.max(1.0, 99 / (100 - X));
