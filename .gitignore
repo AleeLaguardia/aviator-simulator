@@ -8,6 +8,7 @@ build
 *.log
 .turbo
 .turbo-tui-cache
+roteiro.md
 .vercel
 .claude
 .playwright-mcp
