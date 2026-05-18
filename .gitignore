@@ -1,0 +1,14 @@
+node_modules
+.next
+dist
+build
+.env
+.env.local
+.DS_Store
+*.log
+.turbo
+.vercel
+.claude
+.playwright-mcp
+next-env.d.ts
+
