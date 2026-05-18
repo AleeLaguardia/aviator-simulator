@@ -7,6 +7,7 @@ import { HistoryBar } from '@/components/game/HistoryBar';
 import { Header } from '@/components/layout/Header';
 import { PlayersList } from '@/components/game/PlayersList';
 import { FairnessPanel } from '@/components/game/FairnessPanel';
+import { HistoryChartButton } from '@/components/game/HistoryChartButton';
 
 export function GameRoom() {
   const { state, placeBet, cashout, deposit } = useGameSocket();
@@ -68,6 +69,7 @@ export function GameRoom() {
             roundId={state.roundId}
             crashPoint={state.crashPoint}
           />
+          <HistoryChartButton history={state.history} />
         </aside>
       </main>
 
