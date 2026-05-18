@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Minus,
   Plus,
@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock,
   X,
+  Repeat,
 } from 'lucide-react';
 import {
   ActiveBet,
@@ -49,6 +50,7 @@ export function BetSlot({
   const [amountStr, setAmountStr] = useState(String(defaultAmount));
   const [autoEnabled, setAutoEnabled] = useState(false);
   const [autoValue, setAutoValue] = useState(2);
+  const [autoBet, setAutoBet] = useState(false);
   const [pending, setPending] = useState<{
     amount: number;
     autoCashout?: number;
@@ -56,19 +58,44 @@ export function BetSlot({
 
   const amount = Number(amountStr) || 0;
   const prevPhaseRef = useRef(phase);
+  const cycleHandledRef = useRef(false);
+
+  const validAmount =
+    player !== null && amount >= 1 && amount <= (player?.balance ?? 0);
 
   useEffect(() => {
-    if (
-      prevPhaseRef.current !== 'WAITING' &&
-      phase === 'WAITING' &&
-      pending &&
-      !myBet
-    ) {
-      onPlaceBet(slot, pending.amount, pending.autoCashout);
-      setPending(null);
+    if (phase !== 'WAITING') {
+      cycleHandledRef.current = false;
+      prevPhaseRef.current = phase;
+      return;
     }
     prevPhaseRef.current = phase;
-  }, [phase, pending, myBet, slot, onPlaceBet]);
+
+    if (myBet || cycleHandledRef.current) return;
+
+    if (pending) {
+      onPlaceBet(slot, pending.amount, pending.autoCashout);
+      setPending(null);
+      cycleHandledRef.current = true;
+      return;
+    }
+
+    if (autoBet && validAmount) {
+      onPlaceBet(slot, amount, autoEnabled ? autoValue : undefined);
+      cycleHandledRef.current = true;
+    }
+  }, [
+    phase,
+    pending,
+    myBet,
+    autoBet,
+    amount,
+    autoEnabled,
+    autoValue,
+    validAmount,
+    slot,
+    onPlaceBet,
+  ]);
 
   const handleAmountChange = (raw: string) => {
     const cleaned = raw.replace(',', '.');
@@ -85,9 +112,6 @@ export function BetSlot({
     const next = Math.max(1, Math.round((amount + delta) * 100) / 100);
     setAmountStr(String(next));
   };
-
-  const validAmount =
-    player !== null && amount >= 1 && amount <= (player?.balance ?? 0);
 
   const canPlace = phase === 'WAITING' && !myBet && validAmount;
   const canSchedule =
@@ -145,11 +169,19 @@ export function BetSlot({
           </span>
           Aposta {slot + 1}
         </h3>
-        {myBet && !myBet.cashedOutAt && phase !== 'CRASHED' && (
-          <span className="text-[10px] uppercase tracking-wider text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded">
-            ativa
-          </span>
-        )}
+        <div className="flex items-center gap-1.5">
+          {autoBet && (
+            <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-violet-200 bg-violet-500/15 border border-violet-500/30 px-2 py-0.5 rounded">
+              <Repeat size={9} />
+              auto
+            </span>
+          )}
+          {myBet && !myBet.cashedOutAt && phase !== 'CRASHED' && (
+            <span className="text-[10px] uppercase tracking-wider text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded">
+              ativa
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
@@ -190,130 +222,107 @@ export function BetSlot({
         ))}
       </div>
 
-      <label className="flex items-center gap-1.5 text-xs">
-        <input
-          type="checkbox"
-          checked={autoEnabled}
-          disabled={inputsLocked}
-          onChange={(e) => setAutoEnabled(e.target.checked)}
-          className="accent-rose-500"
-        />
-        Auto
-        <input
-          type="number"
-          step="0.1"
-          min="1.01"
-          value={autoValue}
-          disabled={!autoEnabled || inputsLocked}
-          onChange={(e) =>
-            setAutoValue(Math.max(1.01, Number(e.target.value)))
-          }
-          className="w-14 bg-black/30 border border-white/10 rounded px-1.5 py-0.5 text-center tabular-nums disabled:opacity-50"
-        />
-        x
-      </label>
+      <div className="flex flex-row flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+        <label className="flex items-center gap-1.5">
+          <input
+            type="checkbox"
+            checked={autoBet}
+            onChange={(e) => setAutoBet(e.target.checked)}
+            className="accent-rose-500"
+          />
+          <Repeat size={11} className="text-white/40" />
+          Auto-aposta
+        </label>
+        <label className="flex items-center gap-1.5">
+          <input
+            type="checkbox"
+            checked={autoEnabled}
+            disabled={inputsLocked}
+            onChange={(e) => setAutoEnabled(e.target.checked)}
+            className="accent-rose-500"
+          />
+          Auto-retirar em
+          <input
+            type="number"
+            step="0.1"
+            min="1.01"
+            value={autoValue}
+            disabled={!autoEnabled || inputsLocked}
+            onChange={(e) =>
+              setAutoValue(Math.max(1.01, Number(e.target.value)))
+            }
+            className="w-14 bg-black/30 border border-white/10 rounded px-1.5 py-0.5 text-center tabular-nums disabled:opacity-50"
+          />
+          x
+        </label>
+      </div>
 
-      <AnimatePresence mode="wait">
-        {canCashout ? (
-          <motion.button
-            key="cashout"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={handleCashout}
-            className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:brightness-110 text-black font-bold py-3 rounded-xl text-sm shadow-lg shadow-emerald-500/30"
-          >
-            RETIRAR
-            <div className="text-xs opacity-80 tabular-nums">
-              R$ {liveWin.toFixed(2)} ({multiplier.toFixed(2)}x)
-            </div>
-          </motion.button>
-        ) : myBet?.cashedOutAt ? (
-          <motion.div
-            key="cashed"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 font-semibold py-3 rounded-xl text-center text-xs"
-          >
-            <CheckCircle2 size={14} className="inline mr-1.5" />
-            {myBet.cashedOutAt.toFixed(2)}x → R${' '}
-            {myBet.winnings?.toFixed(2)}
-          </motion.div>
-        ) : myBet && phase === 'CRASHED' ? (
-          <motion.div
-            key="lost"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-rose-500/15 border border-rose-500/40 text-rose-200 font-semibold py-3 rounded-xl text-center text-xs"
-          >
-            Perdeu R$ {myBet.amount.toFixed(2)}
-          </motion.div>
-        ) : myBet ? (
-          <motion.div
-            key="waiting"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-amber-500/15 border border-amber-500/40 text-amber-200 font-semibold py-3 rounded-xl text-center text-xs"
-          >
-            R$ {myBet.amount.toFixed(2)} confirmada
-          </motion.div>
-        ) : pending ? (
-          <motion.button
-            key="pending"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={handleCancelPending}
-            className="bg-amber-500/15 border border-amber-500/40 text-amber-100 hover:bg-amber-500/25 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2 group"
-          >
-            <Clock size={14} className="shrink-0" />
-            <span>
-              Próxima rodada: R$ {pending.amount.toFixed(2)}
-              {pending.autoCashout
-                ? ` · auto ${pending.autoCashout}x`
-                : ''}
-            </span>
-            <X
-              size={14}
-              className="shrink-0 opacity-60 group-hover:opacity-100"
-            />
-          </motion.button>
-        ) : phase === 'WAITING' ? (
-          <motion.button
-            key="place"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={handlePlace}
-            disabled={!canPlace}
-            className={`${
-              slot === 0
-                ? 'from-rose-500 to-rose-700 shadow-rose-500/30'
-                : 'from-cyan-500 to-cyan-700 shadow-cyan-500/30'
-            } bg-gradient-to-r hover:brightness-110 text-white font-bold py-3 rounded-xl text-sm shadow-lg flex items-center justify-center gap-2 disabled:from-white/10 disabled:to-white/5 disabled:text-white/40 disabled:shadow-none`}
-          >
-            <Rocket size={14} />
-            APOSTAR
-          </motion.button>
-        ) : (
-          <motion.button
-            key="schedule"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={handleSchedule}
-            disabled={!canSchedule}
-            className={`${
-              slot === 0
-                ? 'border-rose-500/40 text-rose-200 hover:bg-rose-500/15'
-                : 'border-cyan-500/40 text-cyan-200 hover:bg-cyan-500/15'
-            } bg-transparent border-2 font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 disabled:border-white/10 disabled:text-white/30 disabled:hover:bg-transparent`}
-          >
-            <Clock size={14} />
-            APOSTAR NA PRÓXIMA
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {canCashout ? (
+        <button
+          onClick={handleCashout}
+          className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:brightness-110 text-black font-bold py-3 rounded-xl text-sm shadow-lg shadow-emerald-500/30 transition"
+        >
+          RETIRAR
+          <div className="text-xs opacity-80 tabular-nums">
+            R$ {liveWin.toFixed(2)} ({multiplier.toFixed(2)}x)
+          </div>
+        </button>
+      ) : myBet?.cashedOutAt ? (
+        <div className="bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 font-semibold py-3 rounded-xl text-center text-xs">
+          <CheckCircle2 size={14} className="inline mr-1.5" />
+          {myBet.cashedOutAt.toFixed(2)}x → R${' '}
+          {myBet.winnings?.toFixed(2)}
+        </div>
+      ) : myBet && phase === 'CRASHED' ? (
+        <div className="bg-rose-500/15 border border-rose-500/40 text-rose-200 font-semibold py-3 rounded-xl text-center text-xs">
+          Perdeu R$ {myBet.amount.toFixed(2)}
+        </div>
+      ) : myBet ? (
+        <div className="bg-amber-500/15 border border-amber-500/40 text-amber-200 font-semibold py-3 rounded-xl text-center text-xs">
+          R$ {myBet.amount.toFixed(2)} confirmada
+        </div>
+      ) : pending ? (
+        <button
+          onClick={handleCancelPending}
+          className="bg-amber-500/15 border border-amber-500/40 text-amber-100 hover:bg-amber-500/25 font-semibold py-3 rounded-xl text-xs flex items-center justify-center gap-2 group transition"
+        >
+          <Clock size={14} className="shrink-0" />
+          <span>
+            Próxima rodada: R$ {pending.amount.toFixed(2)}
+            {pending.autoCashout ? ` · auto ${pending.autoCashout}x` : ''}
+          </span>
+          <X
+            size={14}
+            className="shrink-0 opacity-60 group-hover:opacity-100"
+          />
+        </button>
+      ) : phase === 'WAITING' ? (
+        <button
+          onClick={handlePlace}
+          disabled={!canPlace}
+          className={`${
+            slot === 0
+              ? 'from-rose-500 to-rose-700 shadow-rose-500/30'
+              : 'from-cyan-500 to-cyan-700 shadow-cyan-500/30'
+          } bg-gradient-to-r hover:brightness-110 text-white font-bold py-3 rounded-xl text-sm shadow-lg flex items-center justify-center gap-2 disabled:from-white/10 disabled:to-white/5 disabled:text-white/40 disabled:shadow-none transition`}
+        >
+          <Rocket size={14} />
+          APOSTAR
+        </button>
+      ) : (
+        <button
+          onClick={handleSchedule}
+          disabled={!canSchedule}
+          className={`${
+            slot === 0
+              ? 'border-rose-500/40 text-rose-200 hover:bg-rose-500/15'
+              : 'border-cyan-500/40 text-cyan-200 hover:bg-cyan-500/15'
+          } bg-transparent border-2 font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 disabled:border-white/10 disabled:text-white/30 disabled:hover:bg-transparent transition`}
+        >
+          <Clock size={14} />
+          APOSTAR NA PRÓXIMA
+        </button>
+      )}
 
       {lastCashout && phase === 'CRASHED' && (
         <motion.div
