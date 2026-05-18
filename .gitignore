@@ -7,6 +7,7 @@ build
 .DS_Store
 *.log
 .turbo
+.turbo-tui-cache
 .vercel
 .claude
 .playwright-mcp

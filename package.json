@@ -8,15 +8,20 @@
     "client"
   ],
   "scripts": {
-    "dev": "concurrently -n server,client -c blue,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
-    "dev:server": "npm run dev -w server",
-    "dev:client": "npm run dev -w client",
-    "build": "npm run build -w server && npm run build -w client",
-    "start": "concurrently -n server,client -c blue,magenta \"npm run start -w server\" \"npm run start -w client\"",
-    "test": "npm run test -w server && npm run test -w client",
-    "typecheck": "npm run typecheck -w server && npm run typecheck -w client"
+    "dev": "turbo run dev",
+    "dev:server": "turbo run dev --filter=server",
+    "dev:client": "turbo run dev --filter=client",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "test": "turbo run test",
+    "test:server": "turbo run test --filter=server",
+    "test:client": "turbo run test --filter=client",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules .turbo"
   },
   "devDependencies": {
-    "concurrently": "^9.1.0"
-  }
+    "turbo": "2.3.3"
+  },
+  "packageManager": "npm@10.9.0"
 }

@@ -28,22 +28,33 @@ Simulador do jogo **Aviator** (crash game) com arquitetura cliente-servidor e al
 
 ## Como rodar
 
+Monorepo orquestrado por [Turborepo](https://turbo.build/) sobre npm workspaces. Todos os comandos rodam da raiz.
+
 ```bash
 npm install
-npm run dev                # sobe os dois (server + client)
+npm run dev                # sobe server (4100) + client (3100) em paralelo
 
-# ou separadamente
-npm run dev:server         # http://localhost:4100
-npm run dev:client         # http://localhost:3100
+# filtrados por workspace
+npm run dev:server
+npm run dev:client
+npm run test:server
+npm run test:client
 
-# testes e type-check
-npm test                   # roda vitest em ambos os workspaces
-npm run typecheck          # tsc --noEmit em ambos
+# todo o monorepo
+npm test                   # vitest em server + client
+npm run typecheck          # tsc --noEmit em shared + server + client
+npm run build              # tsc → dist/ (server) + next build (client)
+npm run start              # após build, sobe os dois
+npm run lint
 ```
+
+Turbo cacheia resultados por hash de inputs — rodar `npm run typecheck` 2x em sequência sem alterações resulta em `FULL TURBO` (~40ms).
 
 ## Estrutura
 
 ```
+turbo.json                  # pipeline (dev/build/test/typecheck)
+package.json                # workspaces: shared, server, client
 shared/                     # @aviator/shared workspace
   src/types.ts              # tipos de domínio (Player, ActiveBet, etc.)
   src/events.ts             # ServerToClientEvents, ClientToServerEvents
