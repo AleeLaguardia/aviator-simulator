@@ -2,7 +2,7 @@
 
 import { Plane, Wallet, Plus, Wifi, WifiOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Player } from '@/lib/types';
+import { Player } from '@aviator/shared';
 import { useState } from 'react';
 
 interface Props {

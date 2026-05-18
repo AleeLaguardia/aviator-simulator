@@ -13,7 +13,7 @@ import {
 import {
   ClientToServerEvents,
   ServerToClientEvents,
-} from './sockets/events';
+} from '@aviator/shared';
 
 function bootstrap() {
   const env = loadEnv();

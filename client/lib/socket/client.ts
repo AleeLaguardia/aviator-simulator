@@ -1,5 +1,8 @@
 import { io, Socket } from 'socket.io-client';
-import { ClientToServerEvents, ServerToClientEvents } from './events';
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from '@aviator/shared';
 
 export type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 

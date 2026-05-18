@@ -7,7 +7,7 @@ export interface Player {
   balance: number;
 }
 
-export interface Bet {
+export interface ActiveBet {
   playerId: string;
   playerName: string;
   slot: BetSlot;
@@ -34,16 +34,6 @@ export interface RoundSnapshot {
   startsAt?: number;
   startedAt?: number;
   crashedAt?: number;
-}
-
-export interface ActiveBetView {
-  playerId: string;
-  playerName: string;
-  slot: BetSlot;
-  amount: number;
-  autoCashout?: number;
-  cashedOutAt?: number;
-  winnings?: number;
 }
 
 export interface CashoutResult {

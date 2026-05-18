@@ -6,7 +6,7 @@ import {
   HistoryEntry,
   Player,
   RoundSnapshot,
-} from '@/lib/types';
+} from '@aviator/shared';
 
 export type SlotState<T> = [T | null, T | null];
 

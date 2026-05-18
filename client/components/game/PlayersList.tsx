@@ -2,7 +2,7 @@
 
 import { Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ActiveBet } from '@/lib/types';
+import { ActiveBet } from '@aviator/shared';
 
 interface Props {
   bets: ActiveBet[];

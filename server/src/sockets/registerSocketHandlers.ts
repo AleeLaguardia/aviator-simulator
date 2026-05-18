@@ -2,7 +2,10 @@ import { Server } from 'socket.io';
 import { GameEngine } from '../engine/GameEngine';
 import { BettingService } from '../services/BettingService';
 import { PlayerStore } from '../services/PlayerStore';
-import { ClientToServerEvents, ServerToClientEvents } from './events';
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from '@aviator/shared';
 
 export type AppServer = Server<ClientToServerEvents, ServerToClientEvents>;
 

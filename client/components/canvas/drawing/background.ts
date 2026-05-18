@@ -1,4 +1,4 @@
-import { GamePhase } from '@/lib/types';
+import { GamePhase } from '@aviator/shared';
 
 export function drawBackground(
   ctx: CanvasRenderingContext2D,

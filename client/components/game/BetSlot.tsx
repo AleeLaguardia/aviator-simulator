@@ -17,7 +17,7 @@ import {
   CashoutResult,
   GamePhase,
   Player,
-} from '@/lib/types';
+} from '@aviator/shared';
 
 interface Props {
   slot: BetSlotType;

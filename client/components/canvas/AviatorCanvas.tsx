@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { GamePhase } from '@/lib/types';
+import { GamePhase } from '@aviator/shared';
 import { TIER_HEX, tierFor } from '@/lib/multiplierColors';
 import { drawBackground } from './drawing/background';
 import { drawCenterText } from './drawing/centerText';

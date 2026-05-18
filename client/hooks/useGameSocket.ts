@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { AppSocket, createSocket } from '@/lib/socket/client';
-import { BetSlot } from '@/lib/types';
+import { BetSlot } from '@aviator/shared';
 import { gameReducer, initialGameState } from './gameReducer';
 
 const BET_ERROR_TIMEOUT = 3000;

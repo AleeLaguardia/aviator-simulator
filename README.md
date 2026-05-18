@@ -35,6 +35,38 @@ npm run dev                # sobe os dois (server + client)
 # ou separadamente
 npm run dev:server         # http://localhost:4100
 npm run dev:client         # http://localhost:3100
+
+# testes e type-check
+npm test                   # roda vitest em ambos os workspaces
+npm run typecheck          # tsc --noEmit em ambos
+```
+
+## Estrutura
+
+```
+shared/                     # @aviator/shared workspace
+  src/types.ts              # tipos de domínio (Player, ActiveBet, etc.)
+  src/events.ts             # ServerToClientEvents, ClientToServerEvents
+server/
+  src/
+    config/                 # constants + env loader
+    domain/                 # provablyFair, multiplier (puros)
+    engine/GameEngine.ts    # state machine, emite eventos via EventEmitter
+    services/               # PlayerStore, BettingService
+    sockets/                # registerSocketHandlers (wiring puro)
+    index.ts                # bootstrap + graceful shutdown
+client/
+  app/                      # rota Next.js (App Router)
+  components/
+    canvas/                 # AviatorCanvas + drawing/ (background, plane, curve, ...)
+    game/                   # GameRoom, BetSlot, HistoryBar, etc.
+    layout/Header.tsx
+  hooks/
+    gameReducer.ts          # reducer puro (testável sem React)
+    useGameSocket.ts        # composição: useReducer + socket
+  lib/
+    socket/client.ts        # cliente socket.io tipado
+    multiplierColors.ts
 ```
 
 ## Features

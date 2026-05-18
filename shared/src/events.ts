@@ -1,6 +1,5 @@
 import {
-  ActiveBetView,
-  Bet,
+  ActiveBet,
   BetError,
   BetSlot,
   CashoutResult,
@@ -8,14 +7,14 @@ import {
   HistoryEntry,
   Player,
   RoundSnapshot,
-} from '../domain/types';
+} from './types';
 
 export interface ServerToClientEvents {
   init: (payload: {
     player: Player;
     snapshot: RoundSnapshot;
     history: HistoryEntry[];
-    activeBets: ActiveBetView[];
+    activeBets: ActiveBet[];
   }) => void;
   player: (player: Player) => void;
   phase: (payload: {
@@ -33,8 +32,8 @@ export interface ServerToClientEvents {
     hash: string;
   }) => void;
   history: (history: HistoryEntry[]) => void;
-  activeBets: (bets: ActiveBetView[]) => void;
-  betPlaced: (bet: Bet) => void;
+  activeBets: (bets: ActiveBet[]) => void;
+  betPlaced: (bet: ActiveBet) => void;
   cashedOut: (result: CashoutResult) => void;
   betError: (error: BetError) => void;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { HistoryEntry } from '@/lib/types';
+import { HistoryEntry } from '@aviator/shared';
 import { History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TIER_TAILWIND, tierFor } from '@/lib/multiplierColors';

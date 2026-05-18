@@ -1,5 +1,5 @@
 import { GAME_RULES } from '../config/constants';
-import { Player } from '../domain/types';
+import { Player } from '@aviator/shared';
 
 const round2 = (n: number) => Math.floor(n * 100) / 100;
 

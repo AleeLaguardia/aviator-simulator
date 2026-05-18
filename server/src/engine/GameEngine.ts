@@ -6,7 +6,7 @@ import {
   GamePhase,
   HistoryEntry,
   RoundSnapshot,
-} from '../domain/types';
+} from '@aviator/shared';
 
 export interface GameEngineEvents {
   waiting: (snapshot: RoundSnapshot) => void;

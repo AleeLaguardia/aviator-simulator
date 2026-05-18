@@ -1,4 +1,4 @@
-import { GamePhase } from '@/lib/types';
+import { GamePhase } from '@aviator/shared';
 import { TierStyle } from './types';
 
 export function drawCenterText(

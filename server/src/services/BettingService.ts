@@ -2,12 +2,11 @@ import { EventEmitter } from 'events';
 import { GAME_RULES } from '../config/constants';
 import { GameEngine } from '../engine/GameEngine';
 import {
-  ActiveBetView,
-  Bet,
+  ActiveBet,
   BetError,
   BetSlot,
   CashoutResult,
-} from '../domain/types';
+} from '@aviator/shared';
 import { PlayerStore } from './PlayerStore';
 
 export interface PlaceBetInput {
@@ -18,7 +17,7 @@ export interface PlaceBetInput {
 }
 
 export interface BettingServiceEvents {
-  betPlaced: (payload: { socketId: string; bet: Bet }) => void;
+  betPlaced: (payload: { socketId: string; bet: ActiveBet }) => void;
   cashedOut: (payload: { socketId: string; result: CashoutResult }) => void;
   betError: (payload: { socketId: string; error: BetError }) => void;
   activeBetsChanged: () => void;
@@ -27,7 +26,7 @@ export interface BettingServiceEvents {
 const round2 = (n: number) => Math.floor(n * 100) / 100;
 
 export class BettingService extends EventEmitter {
-  private readonly bets = new Map<string, Bet>();
+  private readonly bets = new Map<string, ActiveBet>();
 
   constructor(
     private readonly engine: GameEngine,
@@ -84,7 +83,7 @@ export class BettingService extends EventEmitter {
 
     const auto = autoCashout ? Math.max(1.01, Number(autoCashout)) : undefined;
 
-    const bet: Bet = {
+    const bet: ActiveBet = {
       playerId: player.id,
       playerName: player.name,
       slot,
@@ -134,7 +133,7 @@ export class BettingService extends EventEmitter {
     if (removed) this.emit('activeBetsChanged');
   }
 
-  getActiveBets(): ActiveBetView[] {
+  getActiveBets(): ActiveBet[] {
     return Array.from(this.bets.values()).map((b) => ({
       playerId: b.playerId,
       playerName: b.playerName,
