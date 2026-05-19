@@ -7,9 +7,16 @@ interface Props {
   serverSeed?: string;
   roundId: number;
   crashPoint?: number;
+  rtpPercent: number;
 }
 
-export function FairnessPanel({ hash, serverSeed, roundId, crashPoint }: Props) {
+export function FairnessPanel({
+  hash,
+  serverSeed,
+  roundId,
+  crashPoint,
+  rtpPercent,
+}: Props) {
   return (
     <div className="bg-[var(--color-bg-panel)] rounded-2xl border border-white/5 p-5 flex flex-col gap-3">
       <h3 className="font-semibold flex items-center gap-2">
@@ -19,7 +26,7 @@ export function FairnessPanel({ hash, serverSeed, roundId, crashPoint }: Props) 
       <p className="text-xs text-white/50 leading-relaxed">
         O servidor sorteia uma <span className="text-white/80">seed</span> antes da rodada e publica seu{' '}
         <span className="text-white/80">hash SHA-256</span>. Quando o avião cai, a seed é revelada e você pode verificar que o multiplicador foi derivado de
-        <code className="text-rose-300"> max(1, 99 / (100 − X))</code>.
+        <code className="text-rose-300"> max(1, {rtpPercent} / (100 − X))</code>.
       </p>
 
       <div className="space-y-2 text-xs">

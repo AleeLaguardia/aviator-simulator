@@ -68,6 +68,7 @@ export function GameRoom() {
             serverSeed={state.serverSeed}
             roundId={state.roundId}
             crashPoint={state.crashPoint}
+            rtpPercent={state.rtpPercent}
           />
           <HistoryChartButton history={state.history} />
         </aside>

@@ -49,10 +49,12 @@ describe('gameReducer', () => {
       snapshot: baseSnapshot,
       history: [],
       activeBets: [otherBet(0), myBet(1), otherBet(1)],
+      config: { rtpPercent: 95 },
     });
     expect(next.player).toEqual(player);
     expect(next.myBets[0]).toBeNull();
     expect(next.myBets[1]).toEqual(myBet(1));
+    expect(next.rtpPercent).toBe(95);
   });
 
   it('tick updates only the multiplier', () => {

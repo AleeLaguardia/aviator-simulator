@@ -26,6 +26,7 @@ export interface GameState {
   myBets: SlotState<ActiveBet>;
   lastCashouts: SlotState<CashoutResult>;
   errors: SlotState<string>;
+  rtpPercent: number;
 }
 
 export const initialGameState: GameState = {
@@ -40,6 +41,7 @@ export const initialGameState: GameState = {
   myBets: [null, null],
   lastCashouts: [null, null],
   errors: [null, null],
+  rtpPercent: 95,
 };
 
 export type GameAction =
@@ -51,6 +53,7 @@ export type GameAction =
       snapshot: RoundSnapshot;
       history: HistoryEntry[];
       activeBets: ActiveBet[];
+      config: { rtpPercent: number };
     }
   | { type: 'player'; player: Player }
   | {
@@ -107,6 +110,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         history: action.history,
         activeBets: action.activeBets,
         myBets: deriveMyBets(action.activeBets, action.player.id),
+        rtpPercent: action.config.rtpPercent,
       };
 
     case 'player':

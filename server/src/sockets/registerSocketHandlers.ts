@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import { GameEngine } from '../engine/GameEngine';
 import { BettingService } from '../services/BettingService';
 import { PlayerStore } from '../services/PlayerStore';
+import { FAIRNESS } from '../config/constants';
 import {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -33,6 +34,7 @@ export function registerSocketHandlers({
       snapshot: engine.snapshot(),
       history: engine.getHistory(),
       activeBets: betting.getActiveBets(),
+      config: { rtpPercent: FAIRNESS.rtpPercent },
     });
 
     socket.on('placeBet', (data) => {

@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { FAIRNESS } from '../config/constants';
 
 export interface ProvablyFairResult {
   serverSeed: string;
@@ -23,7 +24,7 @@ export function deriveCrashPoint(serverSeed: string, nonce: number): number {
   const intVal = parseInt(hmac.slice(0, 8), 16);
   const X = (intVal / 0xffffffff) * 99.99;
 
-  const raw = Math.max(1.0, 99 / (100 - X));
+  const raw = Math.max(1.0, FAIRNESS.rtpPercent / (100 - X));
   return Math.floor(raw * 100) / 100;
 }
 

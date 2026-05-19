@@ -5,6 +5,7 @@ import {
   generateServerSeed,
   hashSeed,
 } from './provablyFair';
+import { FAIRNESS } from '../config/constants';
 
 describe('hashSeed', () => {
   it('produces the SHA-256 of the input', () => {
@@ -67,6 +68,20 @@ describe('deriveCrashPoint', () => {
       const cents = crash * 100;
       expect(Math.abs(cents - Math.round(cents))).toBeLessThan(0.0001);
     }
+  });
+
+  it('produces empirical RTP within ±3% of configured FAIRNESS.rtpPercent', () => {
+    const seed = 'rtp-sample';
+    const N = 20_000;
+    const cashoutAt = 2;
+    let totalReturn = 0;
+    for (let nonce = 1; nonce <= N; nonce++) {
+      const crash = deriveCrashPoint(seed, nonce);
+      totalReturn += crash >= cashoutAt ? cashoutAt : 0;
+    }
+    const rtp = (totalReturn / N) * 100;
+    expect(rtp).toBeGreaterThan(FAIRNESS.rtpPercent - 3);
+    expect(rtp).toBeLessThan(FAIRNESS.rtpPercent + 3);
   });
 });
 

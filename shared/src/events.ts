@@ -15,6 +15,7 @@ export interface ServerToClientEvents {
     snapshot: RoundSnapshot;
     history: HistoryEntry[];
     activeBets: ActiveBet[];
+    config: { rtpPercent: number };
   }) => void;
   player: (player: Player) => void;
   phase: (payload: {

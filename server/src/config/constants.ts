@@ -14,3 +14,7 @@ export const GAME_RULES = {
 export const MULTIPLIER = {
   growthRate: 0.06,
 } as const;
+
+export const FAIRNESS = {
+  rtpPercent: 92,
+} as const;
